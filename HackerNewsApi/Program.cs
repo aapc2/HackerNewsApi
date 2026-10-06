@@ -8,6 +8,9 @@ builder.Services.AddControllers();
 // Cache
 builder.Services.AddMemoryCache();
 
+//healthCheck
+builder.Services.AddHealthChecks();
+
 // Hacker News HttpClient
 builder.Services.AddHttpClient("HackerNews", client =>
 {
@@ -32,4 +35,5 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHealthChecks("/health");
 app.Run();

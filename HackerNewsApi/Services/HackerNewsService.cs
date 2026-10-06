@@ -26,11 +26,12 @@ namespace HackerNewsApi.Services
                 return cachedStories.Take(n).ToList();
             }
 
+            // Ensure only one request refreshes the cache at a time
             await _refreshLock.WaitAsync(cancellationToken);
 
             try
             {
-                // Check the cache again in case another request populated it while waiting
+                // Another request may have populated the cache while this one was waiting
                 if (_cache.TryGetValue(RankedStoriesCacheKey, out cachedStories) && cachedStories != null)
                 {
                     return cachedStories.Take(n).ToList();
@@ -41,6 +42,7 @@ namespace HackerNewsApi.Services
                 // Fetch story IDs asynchronously without blocking the request thread
                 var storyIds = await client.GetFromJsonAsync<List<int>>("v0/beststories.json",cancellationToken);
 
+                // Return an empty result if Hacker News provides no story IDs
                 if (storyIds == null || storyIds.Count == 0)
                 {
                     return new List<StoryResponse>();
